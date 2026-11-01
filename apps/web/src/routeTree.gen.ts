@@ -10,7 +10,11 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as authLayoutRouteImport } from './routes/(auth)/layout'
 import { Route as dashboardLayoutRouteImport } from './routes/(dashboard)/layout'
+import { Route as authConfirmEmailRouteImport } from './routes/(auth)/confirm-email'
+import { Route as authSignInRouteImport } from './routes/(auth)/sign-in'
+import { Route as authSignUpRouteImport } from './routes/(auth)/sign-up'
 import { Route as dashboardMessagesRouteImport } from './routes/(dashboard)/messages'
 import { Route as dashboardSseIndexRouteImport } from './routes/(dashboard)/sse/index'
 import { Route as dashboardSseApiEventsRouteImport } from './routes/(dashboard)/sse/api.events'
@@ -20,9 +24,28 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const authLayoutRoute = authLayoutRouteImport.update({
+  id: '/(auth)',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const dashboardLayoutRoute = dashboardLayoutRouteImport.update({
   id: '/(dashboard)',
   getParentRoute: () => rootRouteImport,
+} as any)
+const authConfirmEmailRoute = authConfirmEmailRouteImport.update({
+  id: '/confirm-email',
+  path: '/confirm-email',
+  getParentRoute: () => authLayoutRoute,
+} as any)
+const authSignInRoute = authSignInRouteImport.update({
+  id: '/sign-in',
+  path: '/sign-in',
+  getParentRoute: () => authLayoutRoute,
+} as any)
+const authSignUpRoute = authSignUpRouteImport.update({
+  id: '/sign-up',
+  path: '/sign-up',
+  getParentRoute: () => authLayoutRoute,
 } as any)
 const dashboardMessagesRoute = dashboardMessagesRouteImport.update({
   id: '/messages',
@@ -42,12 +65,18 @@ const dashboardSseApiEventsRoute = dashboardSseApiEventsRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/confirm-email': typeof authConfirmEmailRoute
+  '/sign-in': typeof authSignInRoute
+  '/sign-up': typeof authSignUpRoute
   '/messages': typeof dashboardMessagesRoute
   '/sse/': typeof dashboardSseIndexRoute
   '/sse/api/events': typeof dashboardSseApiEventsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/confirm-email': typeof authConfirmEmailRoute
+  '/sign-in': typeof authSignInRoute
+  '/sign-up': typeof authSignUpRoute
   '/messages': typeof dashboardMessagesRoute
   '/sse': typeof dashboardSseIndexRoute
   '/sse/api/events': typeof dashboardSseApiEventsRoute
@@ -55,20 +84,42 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/(auth)': typeof authLayoutRouteWithChildren
   '/(dashboard)': typeof dashboardLayoutRouteWithChildren
+  '/(auth)/confirm-email': typeof authConfirmEmailRoute
+  '/(auth)/sign-in': typeof authSignInRoute
+  '/(auth)/sign-up': typeof authSignUpRoute
   '/(dashboard)/messages': typeof dashboardMessagesRoute
   '/(dashboard)/sse/': typeof dashboardSseIndexRoute
   '/(dashboard)/sse/api/events': typeof dashboardSseApiEventsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/messages' | '/sse/' | '/sse/api/events'
+  fullPaths:
+    | '/'
+    | '/confirm-email'
+    | '/sign-in'
+    | '/sign-up'
+    | '/messages'
+    | '/sse/'
+    | '/sse/api/events'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/messages' | '/sse' | '/sse/api/events'
+  to:
+    | '/'
+    | '/confirm-email'
+    | '/sign-in'
+    | '/sign-up'
+    | '/messages'
+    | '/sse'
+    | '/sse/api/events'
   id:
     | '__root__'
     | '/'
+    | '/(auth)'
     | '/(dashboard)'
+    | '/(auth)/confirm-email'
+    | '/(auth)/sign-in'
+    | '/(auth)/sign-up'
     | '/(dashboard)/messages'
     | '/(dashboard)/sse/'
     | '/(dashboard)/sse/api/events'
@@ -76,6 +127,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  authLayoutRoute: typeof authLayoutRouteWithChildren
   dashboardLayoutRoute: typeof dashboardLayoutRouteWithChildren
 }
 
@@ -88,12 +140,40 @@ declare module '@tanstack/solid-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/(auth)': {
+      id: '/(auth)'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof authLayoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/(dashboard)': {
       id: '/(dashboard)'
       path: ''
       fullPath: ''
       preLoaderRoute: typeof dashboardLayoutRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/(auth)/confirm-email': {
+      id: '/(auth)/confirm-email'
+      path: '/confirm-email'
+      fullPath: '/confirm-email'
+      preLoaderRoute: typeof authConfirmEmailRouteImport
+      parentRoute: typeof authLayoutRoute
+    }
+    '/(auth)/sign-in': {
+      id: '/(auth)/sign-in'
+      path: '/sign-in'
+      fullPath: '/sign-in'
+      preLoaderRoute: typeof authSignInRouteImport
+      parentRoute: typeof authLayoutRoute
+    }
+    '/(auth)/sign-up': {
+      id: '/(auth)/sign-up'
+      path: '/sign-up'
+      fullPath: '/sign-up'
+      preLoaderRoute: typeof authSignUpRouteImport
+      parentRoute: typeof authLayoutRoute
     }
     '/(dashboard)/messages': {
       id: '/(dashboard)/messages'
@@ -119,6 +199,22 @@ declare module '@tanstack/solid-router' {
   }
 }
 
+interface authLayoutRouteChildren {
+  authConfirmEmailRoute: typeof authConfirmEmailRoute
+  authSignInRoute: typeof authSignInRoute
+  authSignUpRoute: typeof authSignUpRoute
+}
+
+const authLayoutRouteChildren: authLayoutRouteChildren = {
+  authConfirmEmailRoute: authConfirmEmailRoute,
+  authSignInRoute: authSignInRoute,
+  authSignUpRoute: authSignUpRoute,
+}
+
+const authLayoutRouteWithChildren = authLayoutRoute._addFileChildren(
+  authLayoutRouteChildren,
+)
+
 interface dashboardLayoutRouteChildren {
   dashboardMessagesRoute: typeof dashboardMessagesRoute
   dashboardSseIndexRoute: typeof dashboardSseIndexRoute
@@ -137,6 +233,7 @@ const dashboardLayoutRouteWithChildren = dashboardLayoutRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  authLayoutRoute: authLayoutRouteWithChildren,
   dashboardLayoutRoute: dashboardLayoutRouteWithChildren,
 }
 export const routeTree = rootRouteImport

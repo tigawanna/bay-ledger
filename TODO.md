@@ -8,8 +8,8 @@ Depth lives on the current slice. Everything else is a heading until we get ther
 - [x] `@bayledger/auth` post-confirmation Lambda that puts new users in a group
 - [x] Deploy Auth against local AWS (`floci` / cdklocal) and confirm pool + client outputs
 - [x] Wire pool id / client id into the web app (env, not hardcoded)
-- [ ] Sign up / sign in / sign out screens
-- [ ] Protect dashboard routes; send unauthenticated users to sign in
+- [x] Sign up / sign in / sign out screens
+- [x] Protect dashboard routes; send unauthenticated users to sign in
 - [ ] Surface Cognito groups in the session (floor vs manager)
 - [ ] Seed a manager and a floor user for local work
 - [ ] Confirm post-confirmation group assignment end to end

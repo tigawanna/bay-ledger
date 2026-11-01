@@ -38,6 +38,11 @@ export default defineConfig({
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/lambda/, ""),
       },
+      "/cognito-idp": {
+        target: "http://localhost:4566",
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/cognito-idp/, ""),
+      },
     },
   },
 });

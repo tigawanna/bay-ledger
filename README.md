@@ -60,7 +60,7 @@ cp apps/web/.env.example apps/web/.env   # then paste Auth stack outputs
 pnpm dev
 ```
 
-Opens on http://localhost:4040. Calls go through the Vite proxy to `http://localhost:4566`. Cognito ids live in `apps/web/.env`; prod is the same keys with the prod stack’s outputs and an empty `VITE_AWS_ENDPOINT_URL`.
+Opens on http://localhost:4040 (`/sign-in`, `/sign-up`). Cognito user-pool calls go through the Vite `/cognito-idp` proxy to Floci. Cognito ids live in `apps/web/.env`; prod is the same keys with the prod stack’s outputs and an empty `VITE_AWS_ENDPOINT_URL`.
 
 ## Lambdas
 
