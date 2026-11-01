@@ -14,8 +14,8 @@ The product language is warehouse, not healthcare. The technical shape is the sa
 
 1. A crew member authenticates.
 2. They upload a certification document (PDF or image) to object storage.
-3. A worker pipeline scans the file, extracts text, and stores the extracted fields.
-4. Expiry dates on those certifications become first-class data.
+3. A worker pipeline scans the file and proposes fields (type, name, contents, expiry). The crew reviews a form and **approves before we save** — see [docs/certificates.md](./docs/certificates.md).
+4. Expiry dates on those approved certifications become first-class data.
 5. Managers browse profiles, see upcoming expiries, see leave, and assign people to tasks they are actually allowed to do.
 
 ## Domain objects (rough)

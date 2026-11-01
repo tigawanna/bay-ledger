@@ -1,14 +1,56 @@
 # Bayledger
 
-Warehouse crew ledger: operators upload equipment certifications, we extract the text and expiry dates, and managers see who can work what — and who is about to lose a ticket or go on leave.
+Warehouse crew ledger. Operators upload equipment certifications; we extract the text and expiry dates. Managers see who can work what, who is about to lose a ticket, and who is on leave.
 
-See [CONCEPT.md](./CONCEPT.md) for the product, [TODO.md](./TODO.md) for the work list.
+See [CONCEPT.md](./CONCEPT.md) for the product, [TODO.md](./TODO.md) for the work list, [docs/](./docs/) for slice strategies (starting with [certificates](./docs/certificates.md)).
 
 ```text
-apps/infra          CDK app (cdklocal deploy)
-apps/web            Solid frontend
+apps/infra          CDK app (cdklocal deploy against Floci)
+apps/web            SolidJS + TanStack frontend
 packages/auth       Cognito post-confirmation handler
 ```
+
+## Tech stack
+
+**In use**
+
+| Piece | What |
+| --- | --- |
+| pnpm workspaces | Monorepo: `apps/*` + `packages/*`, npm scope `@bayledger/*` |
+| AWS CDK | Infra as code. Lambdas are workspace packages the stacks consume |
+| Floci | Local AWS (`localhost:4566`). `cdklocal` / SDK calls hit Floci, not real AWS |
+| Cognito | Crew identity, `floor` / `managers` groups, SPA client |
+| Lambda | Post-confirmation: put the new user in a group |
+| SolidJS | UI |
+| TanStack | Start, Router, Query, Form, Pacer |
+| Vite+ | Dev, build, check (`vp`) |
+| Tailwind | Styling |
+
+**When the matching slice starts**
+
+| Service | Role in Bayledger |
+| --- | --- |
+| S3 | Certification PDFs and images |
+| SQS | Work queue when a file lands (scan / extract) |
+| SNS | Fan-out: expiry, leave, assignment events |
+| SES | Email to crew (renew ticket, leave decision) |
+| EventBridge Scheduler | Timed jobs (soon-to-expire certs, shift-ahead coverage) |
+| Textract / OCR | Extract text and expiry from uploaded tickets |
+| AppSync | GraphQL API for the dashboard (Cognito authorizer) |
+| DynamoDB (or similar) | Profiles, certs, leave, assignments |
+
+## Auth
+
+Email is the username. After confirm, a post-confirmation Lambda reads `custom:role` and adds the user to a Cognito group. **Group membership is what APIs should authorize on**; `custom:role` is only a signup hint.
+
+| Group | Precedence | Who | What they do |
+| --- | --- | --- | --- |
+| `managers` | 10 (higher) | Shift leads | Roster, expiries, leave, assignments |
+| `floor` | 20 | Operators | Upload certs, request leave |
+
+Missing, unknown, or `"floor"` on signup → `floor`. `"managers"` / `"manager"` → `managers`. Lower precedence wins if a user is in both groups.
+
+Pool also stores `custom:employeeId`.
 
 ## Frontend
 
