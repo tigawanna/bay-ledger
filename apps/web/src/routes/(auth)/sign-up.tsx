@@ -1,7 +1,6 @@
 import { Link, createFileRoute, useNavigate } from "@tanstack/solid-router";
-import { createSignal } from "solid-js";
 import { AuthShell } from "~/components/auth/AuthShell";
-import { FormAlert } from "~/components/auth/FormAlert";
+import { toastAuthError } from "~/components/auth/toast-auth-error";
 import { signUpCrew } from "~/lib/auth/cognito";
 import { passwordPolicyError } from "~/lib/auth/password";
 import { useAppForm } from "~/lib/tanstack/form";
@@ -12,21 +11,18 @@ export const Route = createFileRoute("/(auth)/sign-up")({
 
 function SignUpPage() {
   const navigate = useNavigate();
-  const [formError, setFormError] = createSignal<string>();
 
   const form = useAppForm(() => ({
     defaultValues: {
       givenName: "",
       familyName: "",
-      employeeId: "",
       email: "",
       password: "",
       confirmPassword: "",
     },
     onSubmit: async ({ value }) => {
-      setFormError();
       if (value.password !== value.confirmPassword) {
-        setFormError("Passwords must match");
+        toastAuthError("Passwords must match");
         return;
       }
       try {
@@ -35,7 +31,6 @@ function SignUpPage() {
           password: value.password,
           givenName: value.givenName.trim(),
           familyName: value.familyName.trim(),
-          employeeId: value.employeeId.trim(),
         });
         if (result.userConfirmed) {
           await navigate({ to: "/sign-in", search: { email: value.email.trim() } });
@@ -49,7 +44,7 @@ function SignUpPage() {
           },
         });
       } catch (error) {
-        setFormError(error instanceof Error ? error.message : "Sign-up failed.");
+        toastAuthError(error instanceof Error ? error.message : "Sign-up failed.");
       }
     },
   }));
@@ -59,7 +54,6 @@ function SignUpPage() {
       title="Join the floor"
       description="Self-serve sign-up is for operators. You land in the floor group. Managers are not created here."
     >
-      <FormAlert message={formError()} />
       <form
         class="flex flex-col gap-5"
         onSubmit={(event) => {
@@ -90,21 +84,6 @@ function SignUpPage() {
             )}
           </form.AppField>
         </div>
-        <form.AppField
-          name="employeeId"
-          validators={{
-            onSubmit: ({ value }) => (!value.trim() ? "Employee id is required" : undefined),
-          }}
-        >
-          {(field) => (
-            <field.TextField
-              label="Employee id"
-              description="The id on your badge."
-              autocomplete="off"
-              placeholder="W-1042"
-            />
-          )}
-        </form.AppField>
         <form.AppField
           name="email"
           validators={{

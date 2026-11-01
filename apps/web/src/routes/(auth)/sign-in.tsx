@@ -1,7 +1,6 @@
 import { Link, createFileRoute, useNavigate } from "@tanstack/solid-router";
-import { createSignal } from "solid-js";
 import { AuthShell } from "~/components/auth/AuthShell";
-import { FormAlert } from "~/components/auth/FormAlert";
+import { toastAuthError } from "~/components/auth/toast-auth-error";
 import { CognitoClientError, signInCrew } from "~/lib/auth/cognito";
 import { safeRedirectPath } from "~/lib/auth/session";
 import { useAppForm } from "~/lib/tanstack/form";
@@ -22,15 +21,12 @@ export const Route = createFileRoute("/(auth)/sign-in")({
 function SignInPage() {
   const navigate = useNavigate();
   const search = Route.useSearch();
-  const [formError, setFormError] = createSignal<string>();
-
   const form = useAppForm(() => ({
     defaultValues: {
       email: search().email ?? "",
       password: "",
     },
     onSubmit: async ({ value }) => {
-      setFormError();
       try {
         await signInCrew(value.email.trim(), value.password);
         await navigate({ to: safeRedirectPath(search().redirect) });
@@ -42,7 +38,7 @@ function SignInPage() {
           });
           return;
         }
-        setFormError(error instanceof Error ? error.message : "Sign-in failed.");
+        toastAuthError(error instanceof Error ? error.message : "Sign-in failed.");
       }
     },
   }));
@@ -52,7 +48,6 @@ function SignInPage() {
       title="Sign in"
       description="Warehouse crew and shift leads use the same door. Floor accounts come from sign-up; managers are seeded."
     >
-      <FormAlert message={formError()} />
       <form
         class="flex flex-col gap-5"
         onSubmit={(event) => {

@@ -1,4 +1,6 @@
-import { For, Show, createUniqueId, splitProps, type JSX } from "solid-js";
+import { For, Show, createSignal, createUniqueId, splitProps, type JSX } from "solid-js";
+import { FiEye, FiEyeOff } from "solid-icons/fi";
+import { Button } from "~/components/ui/button";
 import {
   Checkbox,
   CheckboxControl,
@@ -91,7 +93,8 @@ export function FieldErrorMessage(props: { class?: string }) {
 }
 
 export function TextField(
-  props: BaseFieldProps & Omit<JSX.InputHTMLAttributes<HTMLInputElement>, "value" | "onChange">,
+  props: BaseFieldProps &
+    Omit<JSX.InputHTMLAttributes<HTMLInputElement>, "value" | "onChange" | "onInput">,
 ) {
   const [local, inputProps] = splitProps(props, [
     "label",
@@ -122,7 +125,7 @@ export function TextField(
         {...inputProps}
         value={field().state.value ?? ""}
         onBlur={field().handleBlur}
-        onChange={(event) => field().handleChange(event.currentTarget.value)}
+        onInput={(event) => field().handleChange(event.currentTarget.value)}
       />
       <FieldErrorMessage />
     </div>
@@ -131,9 +134,7 @@ export function TextField(
 
 export function PasswordField(
   props: BaseFieldProps &
-    Omit<JSX.InputHTMLAttributes<HTMLInputElement>, "value" | "onChange" | "type"> & {
-      showPassword?: boolean;
-    },
+    Omit<JSX.InputHTMLAttributes<HTMLInputElement>, "value" | "onChange" | "onInput" | "type">,
 ) {
   const [local, inputProps] = splitProps(props, [
     "label",
@@ -141,12 +142,13 @@ export function PasswordField(
     "placeholder",
     "class",
     "orientation",
-    "showPassword",
   ]);
   const field = useFieldContext<string>();
   const inputId = `${createUniqueId()}-${String(field().name)}`;
+  const toggleId = `${inputId}-visibility`;
   const invalid = () => field().state.meta.errors.length > 0;
   const labels = () => buildCommonProps(local.label, local.placeholder, field().name as string);
+  const [visible, setVisible] = createSignal(false);
 
   return (
     <div
@@ -157,17 +159,35 @@ export function PasswordField(
       <Show when={local.description}>
         <p class="text-muted-foreground text-sm">{local.description}</p>
       </Show>
-      <Input
-        id={inputId}
-        name={field().name as string}
-        type={local.showPassword ? "text" : "password"}
-        placeholder={labels().fieldPlaceholder}
-        aria-invalid={invalid() || undefined}
-        {...inputProps}
-        value={field().state.value ?? ""}
-        onBlur={field().handleBlur}
-        onChange={(event) => field().handleChange(event.currentTarget.value)}
-      />
+      <div class="relative">
+        <Input
+          id={inputId}
+          name={field().name as string}
+          type={visible() ? "text" : "password"}
+          placeholder={labels().fieldPlaceholder}
+          aria-invalid={invalid() || undefined}
+          class="pr-10"
+          {...inputProps}
+          value={field().state.value ?? ""}
+          onBlur={field().handleBlur}
+          onInput={(event) => field().handleChange(event.currentTarget.value)}
+        />
+        <Button
+          id={toggleId}
+          type="button"
+          variant="ghost"
+          size="icon-sm"
+          class="text-muted-foreground hover:text-foreground absolute top-1/2 right-0.5 -translate-y-1/2"
+          aria-label={visible() ? "Hide password" : "Show password"}
+          aria-pressed={visible()}
+          aria-controls={inputId}
+          onClick={() => setVisible((open) => !open)}
+        >
+          <Show when={visible()} fallback={<FiEye class="size-4" />}>
+            <FiEyeOff class="size-4" />
+          </Show>
+        </Button>
+      </div>
       <FieldErrorMessage />
     </div>
   );
@@ -175,7 +195,7 @@ export function PasswordField(
 
 export function TextAreaField(
   props: BaseFieldProps &
-    Omit<JSX.TextareaHTMLAttributes<HTMLTextAreaElement>, "value" | "onChange">,
+    Omit<JSX.TextareaHTMLAttributes<HTMLTextAreaElement>, "value" | "onChange" | "onInput">,
 ) {
   const [local, textareaProps] = splitProps(props, [
     "label",
@@ -207,7 +227,7 @@ export function TextAreaField(
         class="min-h-30"
         value={field().state.value ?? ""}
         onBlur={field().handleBlur}
-        onChange={(event) => field().handleChange(event.currentTarget.value)}
+        onInput={(event) => field().handleChange(event.currentTarget.value)}
       />
       <FieldErrorMessage />
     </div>
@@ -216,7 +236,7 @@ export function TextAreaField(
 
 export function EmailField(
   props: BaseFieldProps &
-    Omit<JSX.InputHTMLAttributes<HTMLInputElement>, "value" | "onChange" | "type">,
+    Omit<JSX.InputHTMLAttributes<HTMLInputElement>, "value" | "onChange" | "onInput" | "type">,
 ) {
   const [local, inputProps] = splitProps(props, [
     "label",
@@ -248,7 +268,7 @@ export function EmailField(
         {...inputProps}
         value={field().state.value ?? ""}
         onBlur={field().handleBlur}
-        onChange={(event) => field().handleChange(event.currentTarget.value)}
+        onInput={(event) => field().handleChange(event.currentTarget.value)}
       />
       <FieldErrorMessage />
     </div>

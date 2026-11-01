@@ -20,7 +20,7 @@ The product language is warehouse, not healthcare. The technical shape is the sa
 
 ## Domain objects (rough)
 
-- **Crew member** — identity, group (`floor` or `managers`), employee id.
+- **Crew member** — identity, group (`floor` or `managers`). Employee id is assigned later on the profile row (RDS), not at Cognito sign-up.
 - **Certification** — type (forklift, line, packaging, …), source document, extracted text, issued/expiry dates, status (`valid`, `expiring`, `expired`).
 - **Leave** — requested / approved windows so managers can plan coverage.
 - **Assignment** — a task or station that requires one or more certifications, plus who is on it.

@@ -21,8 +21,9 @@ export class AuthStack extends Stack {
   constructor(scope: Construct, id: string, props?: StackProps) {
     super(scope, id, props);
 
-    // Directory of crew accounts. Email is the username. After they confirm
-    // the verification code, Cognito calls our post-confirmation Lambda.
+    // Directory of crew accounts. Email is the username. Pre-sign-up auto
+    // confirms (Floci never sends the verification mail). Post-confirmation
+    // then puts the user in a group.
     const userPool = new UserPool(this, "Users", {
       userPoolName: "bayledger-users",
       selfSignUpEnabled: true,
@@ -34,10 +35,10 @@ export class AuthStack extends Stack {
         givenName: { required: true, mutable: true },
         familyName: { required: true, mutable: true },
       },
-      // custom:employeeId / custom:role on the user record. Role is a hint
-      // at signup; group membership is what APIs should actually authorize on.
+      // custom:role is a signup hint; group membership is what APIs should
+      // authorize on. Employee id is not collected here — it belongs on the
+      // crew profile in RDS when that slice exists.
       customAttributes: {
-        employeeId: new StringAttribute({ minLen: 1, maxLen: 64, mutable: true }),
         role: new StringAttribute({ minLen: 1, maxLen: 32, mutable: true }),
       },
     });
@@ -71,7 +72,17 @@ export class AuthStack extends Stack {
       precedence: 10,
     });
 
-    // Bundles packages/auth. After email confirm, it reads custom:role and
+    const preSignUp = new NodejsFunction(this, "PreSignUp", {
+      functionName: "bayledger-auth-pre-sign-up",
+      runtime: Runtime.NODEJS_22_X,
+      entry: path.join(packages, "auth/src/pre-sign-up.ts"),
+      timeout: Duration.seconds(10),
+      bundling: {
+        externalModules: ["@aws-sdk/*"],
+      },
+    });
+
+    // Bundles packages/auth. After confirm, it reads custom:role and
     // AdminAddUserToGroup so the ID token carries floor | managers.
     const postConfirmation = new NodejsFunction(this, "PostConfirmation", {
       functionName: "bayledger-auth-post-confirmation",
@@ -94,6 +105,7 @@ export class AuthStack extends Stack {
       }),
     );
 
+    userPool.addTrigger(UserPoolOperation.PRE_SIGN_UP, preSignUp);
     userPool.addTrigger(UserPoolOperation.POST_CONFIRMATION, postConfirmation);
 
     new CfnOutput(this, "UserPoolId", { value: userPool.userPoolId });

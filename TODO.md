@@ -69,5 +69,5 @@ Depth lives on the current slice. Everything else is a heading until we get ther
 - SNS + SES when we send mail (renew, leave)
 - EventBridge Scheduler when expiry / shift-ahead jobs exist
 - AppSync later for the dashboard API (Cognito as the authorizer)
-- Data store (Dynamo or similar) for profiles, certs, leave, assignments
+- RDS for profiles (generated employee id), certs, leave, assignments
 - Add stacks only when the matching slice starts

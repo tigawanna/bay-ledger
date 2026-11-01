@@ -10,6 +10,7 @@ import {
 import { Show, Suspense, lazy, type JSX } from "solid-js";
 import { HydrationScript } from "solid-js/web";
 import appCss from "../app.css?url";
+import { Toaster } from "../components/ui/sonner";
 import { ThemeProvider } from "../components/theme/theme-provider";
 import { RouterErrorComponent } from "../lib/tanstack/router/RouterErrorComponent";
 import { RouterNotFoundComponent } from "../lib/tanstack/router/RouterNotFoundComponent";
@@ -71,6 +72,7 @@ function RootDocument(props: { children: JSX.Element }) {
           <PacerProvider>
             <Suspense>{props.children}</Suspense>
           </PacerProvider>
+          <Toaster position="top-center" />
         </ThemeProvider>
         <Scripts />
       </body>

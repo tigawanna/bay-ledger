@@ -94,7 +94,12 @@ function friendlyMessage(code: string, fallback?: string) {
       return "Too many attempts. Wait a minute and try again.";
     case "MissingConfig":
       return fallback || "Auth is not configured.";
+    case "ResourceNotFoundException":
+      return "This Cognito client is gone. Redeploy Auth and copy the new client id into apps/web/.env.";
     default:
+      if (fallback?.toLowerCase().includes("client not found")) {
+        return "This Cognito client is gone. Redeploy Auth and copy the new client id into apps/web/.env.";
+      }
       return fallback || "Cognito rejected that request.";
   }
 }
@@ -104,7 +109,6 @@ export async function signUpCrew(input: {
   password: string;
   givenName: string;
   familyName: string;
-  employeeId: string;
 }) {
   const body = await cognitoCall("SignUp", {
     ClientId: clientId(),
@@ -114,7 +118,6 @@ export async function signUpCrew(input: {
       { Name: "email", Value: input.email },
       { Name: "given_name", Value: input.givenName },
       { Name: "family_name", Value: input.familyName },
-      { Name: "custom:employeeId", Value: input.employeeId },
       { Name: "custom:role", Value: "floor" },
     ],
   });

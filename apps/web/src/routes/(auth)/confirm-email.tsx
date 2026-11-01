@@ -1,7 +1,7 @@
 import { Link, createFileRoute, useNavigate } from "@tanstack/solid-router";
 import { createSignal } from "solid-js";
 import { AuthShell } from "~/components/auth/AuthShell";
-import { FormAlert } from "~/components/auth/FormAlert";
+import { toastAuthError } from "~/components/auth/toast-auth-error";
 import { Label } from "~/components/ui/label";
 import { OTPField, OTPFieldGroup, OTPFieldInput, OTPFieldSlot } from "~/components/ui/otp-field";
 import { confirmSignUp, resendConfirmationCode } from "~/lib/auth/cognito";
@@ -24,7 +24,6 @@ export const Route = createFileRoute("/(auth)/confirm-email")({
 function ConfirmEmailPage() {
   const navigate = useNavigate();
   const search = Route.useSearch();
-  const [formError, setFormError] = createSignal<string>();
   const [resentTo, setResentTo] = createSignal<string>();
   const [resending, setResending] = createSignal(false);
 
@@ -35,32 +34,30 @@ function ConfirmEmailPage() {
       code: "",
     },
     onSubmit: async ({ value }) => {
-      setFormError();
       if (!email()) {
-        setFormError("Missing email. Start from sign-up.");
+        toastAuthError("Missing email. Start from sign-up.");
         return;
       }
       try {
         await confirmSignUp(email(), value.code.trim());
         await navigate({ to: "/sign-in", search: { email: email() } });
       } catch (error) {
-        setFormError(error instanceof Error ? error.message : "Could not confirm.");
+        toastAuthError(error instanceof Error ? error.message : "Could not confirm.");
       }
     },
   }));
 
   const resend = async () => {
     if (!email()) {
-      setFormError("Missing email. Start from sign-up.");
+      toastAuthError("Missing email. Start from sign-up.");
       return;
     }
     setResending(true);
-    setFormError();
     try {
       const destination = await resendConfirmationCode(email());
       setResentTo(destination ?? email());
     } catch (error) {
-      setFormError(error instanceof Error ? error.message : "Could not resend the code.");
+      toastAuthError(error instanceof Error ? error.message : "Could not resend the code.");
     } finally {
       setResending(false);
     }
@@ -71,11 +68,10 @@ function ConfirmEmailPage() {
       title="Confirm your email"
       description={
         search().sentTo || resentTo()
-          ? `Enter the code sent to ${resentTo() ?? search().sentTo}. Locally, Floci often prints it in its logs.`
-          : "Enter the six-digit code from Cognito. Locally, check the Floci logs if no mail arrives."
+          ? `Enter the code sent to ${resentTo() ?? search().sentTo}. New local sign-ups skip this step.`
+          : "Enter the six-digit code from Cognito. New local sign-ups skip this step."
       }
     >
-      <FormAlert message={formError()} />
       <p class="text-muted-foreground mb-5 text-sm">
         Account: <span class="text-foreground font-medium">{email() || "unknown"}</span>
       </p>

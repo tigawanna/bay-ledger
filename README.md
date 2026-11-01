@@ -41,7 +41,7 @@ packages/auth       Cognito post-confirmation handler
 
 ## Auth
 
-Email is the username. After confirm, a post-confirmation Lambda reads `custom:role` and adds the user to a Cognito group. **Group membership is what APIs should authorize on**; `custom:role` is only a signup hint.
+Email is the username. Floci does not send the Cognito verification email (the code is not returned to the app). A pre-sign-up Lambda auto-confirms the user, then a post-confirmation Lambda reads `custom:role` and adds them to a Cognito group. **Group membership is what APIs should authorize on**; `custom:role` is only a signup hint.
 
 | Group | Precedence | Who | What they do |
 | --- | --- | --- | --- |
@@ -50,7 +50,7 @@ Email is the username. After confirm, a post-confirmation Lambda reads `custom:r
 
 Missing, unknown, or `"floor"` on signup → `floor`. `"managers"` / `"manager"` → `managers`. Lower precedence wins if a user is in both groups.
 
-Pool also stores `custom:employeeId`.
+Employee id is not a Cognito attribute. It will live on the crew profile in RDS when that slice exists.
 
 ## Frontend
 
