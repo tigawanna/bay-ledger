@@ -1,0 +1,52 @@
+{
+  "name": "web",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vp dev --port 4040",
+    "build": "vp build",
+    "preview": "vp preview"
+  },
+  "dependencies": {
+    "@corvu/calendar": "^0.1.2",
+    "@corvu/drawer": "^0.2.4",
+    "@corvu/otp-field": "^0.1.4",
+    "@corvu/resizable": "^0.2.5",
+    "@kobalte/core": "^0.13.14",
+    "@solid-primitives/sse": "^0.0.103",
+    "@tanstack/solid-form": "^1.33.5",
+    "@tanstack/solid-pacer": "^0.24.0",
+    "@tanstack/solid-query": "^5.105.0",
+    "@tanstack/solid-router": "^1.170.43",
+    "@tanstack/solid-router-ssr-query": "^1.167.3",
+    "@tanstack/solid-start": "^1.169.4",
+    "@unovis/solid": "^1.7.1",
+    "@unovis/ts": "^1.7.1",
+    "better-sse": "^0.16.1",
+    "cmdk-solid": "^1.2.0",
+    "cva": "1.0.0-beta.4",
+    "embla-carousel-solid": "^8.6.0",
+    "solid-icons": "^1.2.0",
+    "solid-js": "^1.9.18",
+    "somoto": "^0.0.2",
+    "tailwind-merge": "^3.3.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/vite": "^4.3.3",
+    "@tanstack/devtools-vite": "^0.8.6",
+    "@tanstack/solid-devtools": "^0.8.14",
+    "@tanstack/solid-form-devtools": "^0.2.34",
+    "@tanstack/solid-pacer-devtools": "^0.8.1",
+    "@tanstack/solid-query-devtools": "^5.105.0",
+    "@tanstack/solid-router-devtools": "^1.167.2",
+    "rollup-plugin-analyzer": "^4.0.0",
+    "tailwindcss": "^4.3.3",
+    "typescript": "^7.0.2",
+    "vite": "catalog:",
+    "vite-plugin-solid": "^2.11.15",
+    "vite-plus": "catalog:"
+  },
+  "engines": {
+    "node": ">=24"
+  }
+}

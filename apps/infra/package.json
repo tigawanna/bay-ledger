@@ -1,0 +1,22 @@
+{
+  "name": "infra",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "synth": "cdk synth",
+    "deploy": "cdklocal deploy --require-approval never"
+  },
+  "dependencies": {
+    "@bayledger/auth": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.5",
+    "aws-cdk": "^2.1135.1",
+    "aws-cdk-lib": "^2.264.0",
+    "aws-cdk-local": "^3.0.4",
+    "constructs": "^10.4.2",
+    "esbuild": "^0.25.0",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.2"
+  }
+}

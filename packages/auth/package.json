@@ -1,0 +1,11 @@
+{
+  "name": "@bayledger/auth",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@aws-sdk/client-cognito-identity-provider": "^3.940.0"
+  }
+}
