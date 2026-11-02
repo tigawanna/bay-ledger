@@ -38,7 +38,7 @@ export function AppSidebarUser() {
             as={SidebarMenuButton}
             size="lg"
             tooltip={name}
-            class="data-[expanded]:bg-sidebar-accent data-[expanded]:text-sidebar-accent-foreground w-full active:scale-[0.97] transition-transform duration-160 ease-out"
+            class="data-expanded:bg-sidebar-accent data-expanded:text-sidebar-accent-foreground w-full active:scale-[0.97] transition-transform duration-160 ease-out"
           >
             <span
               class={cx(
