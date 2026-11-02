@@ -7,6 +7,10 @@ const COOKIE_MAX_AGE = 60 * 60 * 24 * 30;
 
 export type AuthSession = {
   username: string;
+  email?: string;
+  givenName?: string;
+  familyName?: string;
+  role?: string;
   groups: string[];
 };
 
@@ -21,7 +25,14 @@ export function parseAuthSession(value: string | undefined): AuthSession | null 
   try {
     const parsed = JSON.parse(value) as AuthSession;
     if (!parsed?.username) return null;
-    return { username: parsed.username, groups: parsed.groups ?? [] };
+    return {
+      username: parsed.username,
+      email: parsed.email,
+      givenName: parsed.givenName,
+      familyName: parsed.familyName,
+      role: parsed.role,
+      groups: parsed.groups ?? [],
+    };
   } catch {
     return null;
   }
@@ -45,6 +56,7 @@ export function clearAuthSession() {
 }
 
 export function readAuthTokens(): AuthTokens | null {
+  if (typeof localStorage === "undefined") return null;
   const raw = localStorage.getItem(TOKENS_KEY);
   if (!raw) return null;
   try {
@@ -60,11 +72,53 @@ export function groupsFromIdToken(idToken: string): string[] {
   return Array.isArray(groups) ? groups.filter((g): g is string => typeof g === "string") : [];
 }
 
-export function usernameFromIdToken(idToken: string): string {
+export function sessionFromIdToken(idToken: string): AuthSession {
   const payload = decodeJwt(idToken);
-  if (typeof payload.email === "string") return payload.email;
-  if (typeof payload["cognito:username"] === "string") return payload["cognito:username"];
-  return "crew";
+  const email = claimString(payload.email);
+  return {
+    username: email ?? claimString(payload["cognito:username"]) ?? "crew",
+    email,
+    givenName: claimString(payload.given_name),
+    familyName: claimString(payload.family_name),
+    role: claimString(payload["custom:role"]),
+    groups: groupsFromIdToken(idToken),
+  };
+}
+
+export function usernameFromIdToken(idToken: string): string {
+  return sessionFromIdToken(idToken).username;
+}
+
+export function displayName(session: AuthSession | null | undefined): string {
+  if (!session) return "Crew";
+  const name = [session.givenName, session.familyName].filter(Boolean).join(" ");
+  return name || session.email || session.username;
+}
+
+export function initials(session: AuthSession | null | undefined): string {
+  const name = displayName(session);
+  const parts = name.split(/[\s@._-]+/).filter(Boolean);
+  if (parts.length >= 2) {
+    return `${parts[0]![0] ?? ""}${parts[1]![0] ?? ""}`.toUpperCase();
+  }
+  return name.slice(0, 2).toUpperCase() || "?";
+}
+
+/** Prefer JWT claims on the client so older cookies still show name/email. */
+export function resolveAuthSession(): AuthSession | null {
+  const cookie = getAuthSession();
+  if (typeof document === "undefined") return cookie;
+  const tokens = readAuthTokens();
+  if (!tokens?.idToken) return cookie;
+  try {
+    return sessionFromIdToken(tokens.idToken);
+  } catch {
+    return cookie;
+  }
+}
+
+function claimString(value: unknown): string | undefined {
+  return typeof value === "string" && value.length > 0 ? value : undefined;
 }
 
 function decodeJwt(token: string): Record<string, unknown> {

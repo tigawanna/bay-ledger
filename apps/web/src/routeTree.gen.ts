@@ -16,6 +16,8 @@ import { Route as authConfirmEmailRouteImport } from './routes/(auth)/confirm-em
 import { Route as authSignInRouteImport } from './routes/(auth)/sign-in'
 import { Route as authSignUpRouteImport } from './routes/(auth)/sign-up'
 import { Route as dashboardMessagesRouteImport } from './routes/(dashboard)/messages'
+import { Route as dashboardProfileRouteImport } from './routes/(dashboard)/profile'
+import { Route as dashboardSettingsRouteImport } from './routes/(dashboard)/settings'
 import { Route as dashboardSseIndexRouteImport } from './routes/(dashboard)/sse/index'
 import { Route as dashboardSseApiEventsRouteImport } from './routes/(dashboard)/sse/api.events'
 
@@ -52,6 +54,16 @@ const dashboardMessagesRoute = dashboardMessagesRouteImport.update({
   path: '/messages',
   getParentRoute: () => dashboardLayoutRoute,
 } as any)
+const dashboardProfileRoute = dashboardProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
+  getParentRoute: () => dashboardLayoutRoute,
+} as any)
+const dashboardSettingsRoute = dashboardSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => dashboardLayoutRoute,
+} as any)
 const dashboardSseIndexRoute = dashboardSseIndexRouteImport.update({
   id: '/sse/',
   path: '/sse/',
@@ -69,6 +81,8 @@ export interface FileRoutesByFullPath {
   '/sign-in': typeof authSignInRoute
   '/sign-up': typeof authSignUpRoute
   '/messages': typeof dashboardMessagesRoute
+  '/profile': typeof dashboardProfileRoute
+  '/settings': typeof dashboardSettingsRoute
   '/sse/': typeof dashboardSseIndexRoute
   '/sse/api/events': typeof dashboardSseApiEventsRoute
 }
@@ -78,6 +92,8 @@ export interface FileRoutesByTo {
   '/sign-in': typeof authSignInRoute
   '/sign-up': typeof authSignUpRoute
   '/messages': typeof dashboardMessagesRoute
+  '/profile': typeof dashboardProfileRoute
+  '/settings': typeof dashboardSettingsRoute
   '/sse': typeof dashboardSseIndexRoute
   '/sse/api/events': typeof dashboardSseApiEventsRoute
 }
@@ -90,6 +106,8 @@ export interface FileRoutesById {
   '/(auth)/sign-in': typeof authSignInRoute
   '/(auth)/sign-up': typeof authSignUpRoute
   '/(dashboard)/messages': typeof dashboardMessagesRoute
+  '/(dashboard)/profile': typeof dashboardProfileRoute
+  '/(dashboard)/settings': typeof dashboardSettingsRoute
   '/(dashboard)/sse/': typeof dashboardSseIndexRoute
   '/(dashboard)/sse/api/events': typeof dashboardSseApiEventsRoute
 }
@@ -101,6 +119,8 @@ export interface FileRouteTypes {
     | '/sign-in'
     | '/sign-up'
     | '/messages'
+    | '/profile'
+    | '/settings'
     | '/sse/'
     | '/sse/api/events'
   fileRoutesByTo: FileRoutesByTo
@@ -110,6 +130,8 @@ export interface FileRouteTypes {
     | '/sign-in'
     | '/sign-up'
     | '/messages'
+    | '/profile'
+    | '/settings'
     | '/sse'
     | '/sse/api/events'
   id:
@@ -121,6 +143,8 @@ export interface FileRouteTypes {
     | '/(auth)/sign-in'
     | '/(auth)/sign-up'
     | '/(dashboard)/messages'
+    | '/(dashboard)/profile'
+    | '/(dashboard)/settings'
     | '/(dashboard)/sse/'
     | '/(dashboard)/sse/api/events'
   fileRoutesById: FileRoutesById
@@ -182,6 +206,20 @@ declare module '@tanstack/solid-router' {
       preLoaderRoute: typeof dashboardMessagesRouteImport
       parentRoute: typeof dashboardLayoutRoute
     }
+    '/(dashboard)/profile': {
+      id: '/(dashboard)/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof dashboardProfileRouteImport
+      parentRoute: typeof dashboardLayoutRoute
+    }
+    '/(dashboard)/settings': {
+      id: '/(dashboard)/settings'
+      path: '/settings'
+      fullPath: '/settings'
+      preLoaderRoute: typeof dashboardSettingsRouteImport
+      parentRoute: typeof dashboardLayoutRoute
+    }
     '/(dashboard)/sse/': {
       id: '/(dashboard)/sse/'
       path: '/sse'
@@ -217,12 +255,16 @@ const authLayoutRouteWithChildren = authLayoutRoute._addFileChildren(
 
 interface dashboardLayoutRouteChildren {
   dashboardMessagesRoute: typeof dashboardMessagesRoute
+  dashboardProfileRoute: typeof dashboardProfileRoute
+  dashboardSettingsRoute: typeof dashboardSettingsRoute
   dashboardSseIndexRoute: typeof dashboardSseIndexRoute
   dashboardSseApiEventsRoute: typeof dashboardSseApiEventsRoute
 }
 
 const dashboardLayoutRouteChildren: dashboardLayoutRouteChildren = {
   dashboardMessagesRoute: dashboardMessagesRoute,
+  dashboardProfileRoute: dashboardProfileRoute,
+  dashboardSettingsRoute: dashboardSettingsRoute,
   dashboardSseIndexRoute: dashboardSseIndexRoute,
   dashboardSseApiEventsRoute: dashboardSseApiEventsRoute,
 }

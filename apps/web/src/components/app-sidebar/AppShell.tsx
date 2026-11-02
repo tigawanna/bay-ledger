@@ -23,13 +23,12 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { TSRBreadCrumbs } from "@/lib/tanstack/router/TSRBreadCrumbs";
-import { Link, Outlet, useNavigate } from "@tanstack/solid-router";
-import { FiLogOut, FiMessageSquare, FiMonitor, FiMoon, FiServer, FiSun } from "solid-icons/fi";
+import { Link, Outlet } from "@tanstack/solid-router";
+import { FiMessageSquare, FiMonitor, FiMoon, FiServer, FiSun } from "solid-icons/fi";
 import { Match, Switch, type JSX } from "solid-js";
 import { useThemeContext, type Theme } from "~/components/theme/theme-provider";
-import { signOutCrew } from "~/lib/auth/cognito";
-import { getAuthSession } from "~/lib/auth/session";
 import { Logo } from "../icon/logo";
+import { AppSidebarUser } from "./AppSidebarUser";
 import { SidebarLinks, type SidebarItem } from "./sidebar-links";
 
 const sidebarRoutes: SidebarItem[] = [
@@ -58,8 +57,8 @@ export function AppShell(props: { children?: JSX.Element; defaultOpen?: boolean 
           </SidebarGroup>
         </SidebarContent>
         <SidebarFooter class="bg-primary/15">
-          <SignOutControl />
           <ThemeControl />
+          <AppSidebarUser />
         </SidebarFooter>
         <SidebarRail />
       </Sidebar>
@@ -82,31 +81,6 @@ const themeLabels: Record<Theme, string> = {
   dark: "Dark",
   system: "System",
 };
-
-function SignOutControl() {
-  const navigate = useNavigate();
-  const session = getAuthSession();
-
-  return (
-    <SidebarMenu>
-      <SidebarMenuItem>
-        <SidebarMenuButton
-          class="w-full"
-          tooltip="Sign out"
-          onClick={async () => {
-            await signOutCrew();
-            await navigate({ to: "/sign-in" });
-          }}
-        >
-          <FiLogOut class="size-4" />
-          <span class="truncate group-data-[collapsible=icon]:hidden">
-            {session?.username ?? "Sign out"}
-          </span>
-        </SidebarMenuButton>
-      </SidebarMenuItem>
-    </SidebarMenu>
-  );
-}
 
 function ThemeControl() {
   const { theme, setTheme } = useThemeContext();

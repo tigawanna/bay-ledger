@@ -3,8 +3,10 @@ import {
   clearAuthSession,
   groupsFromIdToken,
   readAuthTokens,
-  usernameFromIdToken,
+  resolveAuthSession,
+  sessionFromIdToken,
   writeAuthSession,
+  type AuthSession,
   type AuthTokens,
 } from "./session";
 
@@ -48,6 +50,12 @@ type CognitoBody = {
     RefreshToken?: string;
   };
   ChallengeName?: string;
+  Username?: string;
+  UserAttributes?: Array<{ Name?: string; Value?: string }>;
+};
+
+export type CrewUser = AuthSession & {
+  emailVerified?: boolean;
 };
 
 async function cognitoCall(action: string, payload: Record<string, unknown>): Promise<CognitoBody> {
@@ -167,13 +175,38 @@ export async function signInCrew(email: string, password: string) {
     accessToken: result.AccessToken,
     refreshToken: result.RefreshToken,
   };
-  writeAuthSession(
-    {
-      username: usernameFromIdToken(tokens.idToken),
-      groups: groupsFromIdToken(tokens.idToken),
-    },
-    tokens,
-  );
+  writeAuthSession(sessionFromIdToken(tokens.idToken), tokens);
+}
+
+export async function getCrewUser(): Promise<CrewUser> {
+  const tokens = readAuthTokens();
+  const fallback = resolveAuthSession();
+  if (!tokens?.accessToken) {
+    if (!fallback) {
+      throw new CognitoClientError("NotAuthorizedException", "Not signed in.");
+    }
+    return fallback;
+  }
+  try {
+    const body = await cognitoCall("GetUser", { AccessToken: tokens.accessToken });
+    const attrs = Object.fromEntries(
+      (body.UserAttributes ?? [])
+        .filter((attr): attr is { Name: string; Value: string } => Boolean(attr.Name))
+        .map((attr) => [attr.Name, attr.Value ?? ""]),
+    );
+    return {
+      username: body.Username ?? attrs.email ?? fallback?.username ?? "crew",
+      email: attrs.email || fallback?.email,
+      givenName: attrs.given_name || fallback?.givenName,
+      familyName: attrs.family_name || fallback?.familyName,
+      role: attrs["custom:role"] || fallback?.role,
+      emailVerified: attrs.email_verified === "true",
+      groups: tokens.idToken ? groupsFromIdToken(tokens.idToken) : (fallback?.groups ?? []),
+    };
+  } catch {
+    if (!fallback) throw new CognitoClientError("NotAuthorizedException", "Not signed in.");
+    return fallback;
+  }
 }
 
 export async function signOutCrew() {
